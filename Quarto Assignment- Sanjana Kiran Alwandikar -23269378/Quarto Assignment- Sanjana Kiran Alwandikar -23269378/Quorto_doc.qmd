@@ -1,0 +1,140 @@
+---
+title: "Analyzing Global Economic Indicators and Their Impact on Child Deprivation"
+subtitle: "Exploring Military Expenditure, Inflation, GNI, and GDP Per Capita Across Nations"
+
+author: "Sanjana Kiran Alwandikar"
+date: "2024/04/25"
+format:
+  html:
+    theme: lightgreen
+    backgroundcolor: lightgrey
+execute:
+  echo: false
+  warning: false
+  message: false
+
+---
+This document visualizes key economic indicators, including military expenditure, inflation rates, GNI, and GDP per capita across various nations. Each graph offers insights into resource allocation, economic stability, wealth distribution, and development disparities, highlighting their broader implications on societal conditions globally.It contains multiple R scripts aimed at analyzing and visualizing various metrics from the provided datasets.
+
+
+```{r}
+library(RColorBrewer)
+data <- read.csv("/Users/vaishnavimanjunatha/Downloads/unicef_metadata.csv") 
+indicator <- read.csv("/Users/vaishnavimanjunatha/Downloads/unicef_indicator_1.csv")
+
+blue_colors <- c("#D6EAF8", "#AED6F1", "#85C1E9")
+orange_colors <- c("#FDEBD0", "#FAD7A0", "#F8C471")
+
+MExpenditure_by_country <- aggregate(Military.expenditure....of.GDP. ~ country, data, sum)
+filtered_data <- MExpenditure_by_country[MExpenditure_by_country$Military.expenditure....of.GDP. >= 220 & MExpenditure_by_country$Military.expenditure....of.GDP. <= 400, ]
+
+top_countries <- head(filtered_data, 6)
+
+barplot(top_countries$Military.expenditure....of.GDP., 
+        names.arg = top_countries$country, 
+        main = "01. Military Expenditure based on country",
+        xlab = "Country",
+        ylab = "Military expenditure (% of GDP)",
+        col = c(blue_colors, orange_colors))
+```
+
+This bar graph shows the military expenditure of countries based upon their Percentage Children suffering exactly five deprivation. This bar graph shows the military expenditure of countries based upon their Percentage Children suffering exactly five deprivation. Homogeneous severe standards. The view is based on sum of military expenditure for each Country.
+
+------------------------------------------------------------------------
+
+```{r}
+library(ggplot2)
+
+data <- read.csv("/Users/vaishnavimanjunatha/Downloads/unicef_metadata.csv") 
+indicator <- read.csv("/Users/vaishnavimanjunatha/Downloads/unicef_indicator_1.csv")
+
+ggplot(data, aes(x = year, y = Inflation..consumer.prices..annual...)) +
+  geom_area( fill = "white", color="skyblue", size=.4, alpha=0.9, linetype=1) +
+  labs(title = "02. Country Based Inflation Plot",
+       x = "Year",
+       y = "Inflation, consumer prices (annual %)") +
+  theme_minimal()+
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+```
+
+The trend graph shows the inflation and consumer prices % in every year and the highest and current inflation % is seen in the trend line peak. Homogeneous severe standards.
+
+
+------------------------------------------------------------------------
+
+``` {r}
+
+library(ggplot2)
+
+plot_revenue <- function() {
+  data <- read.csv("/Users/vaishnavimanjunatha/Downloads/unicef_metadata.csv")  
+  
+  revenue_by_country <- aggregate(GNI..current.US.. ~ country, data, sum)
+  
+  revenue_by_country <- revenue_by_country[order(-revenue_by_country$GNI..current.US..), ]
+  
+  top_10_countries <- head(revenue_by_country, 10)
+  n <- nrow(top_10_countries)
+  colors <- sample(colors(), n)
+  
+  ggplot(top_10_countries, aes(x = country, y = GNI..current.US.., size = GNI..current.US..,color = colors)) +
+    geom_point(alpha = 0.7) +
+    scale_size_continuous(range = c(3, 12)) +
+    scale_y_continuous(labels = scales::comma_format(scale = 1e-6, suffix = "M"), limits = c(0, max(top_10_countries$GNI..current.US..) * 1.2)) +  
+    labs(title = "03. GNI Based on Country",
+         x = "Country",
+         y = "Revenue (GNI US dollars)",
+         size = "Revenue") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels
+          axis.text.y = element_text(angle = 0, vjust = 0.5))+
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+}
+
+# Call the function to execute the plot
+plot_revenue()
+
+
+
+```
+This scatter plot shows the countries with highest revenue in GNI which is represented in USD in millions. Countries are denoted in different colours and size shows details about the amount of revenue. The view is based on sum of GNI (current US$) and Country. 
+
+
+------------------------------------------------------------------------
+
+``` {r}
+
+library(maps)
+library(ggplot2)
+
+data <- read.csv("/Users/vaishnavimanjunatha/Downloads/unicef_metadata.csv") 
+
+# Plot world map
+world_map <- map_data("world")
+# Merge map data with your dataset based on country codes
+merged_data <- merge(world_map, data, by.x = "region", by.y = "country", all.x = TRUE)
+
+# Plot the map with ggplot2
+ggplot() +
+  geom_map(data = merged_data, map = merged_data,
+           aes(x = long, y = lat, map_id = region, fill = GDP.per.capita..constant.2015.US..)) +
+  scale_fill_gradient(name = "GDP per capita (constant 2015 US$)",
+                      low = "lightblue", high = "lightyellow", na.value = "grey",
+                      limits = c(5000,20000),
+                      guide = "legend") +
+  labs(title = "04. Country Based GDP Value",
+       subtitle = "Data Source: Your Dataset",
+       fill = "GDP per capita (constant 2015 US$)") +
+  theme_void() +
+  theme(legend.position = "bottom")+
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+
+
+```
+This map plot shows the countries with GDP per Capita related Percentage Children suffering exactly five deprivation. Details are shown for Country, merged map data with the country details in the dataset to get the co-ordinates. The Homogeneous severe standards. 
+
+
+------------------------------------------------------------------------
+
+---
